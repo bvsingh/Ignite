@@ -1,5 +1,5 @@
 //
-// Slide.swift
+// Slide.swift - Enhanced Version with Configurable Attributes
 // Ignite
 // https://www.github.com/twostraws/Ignite
 // See LICENSE for license information.
@@ -7,6 +7,24 @@
 
 /// One slide in a `Carousel`.
 public struct Slide: HTML {
+    /// Defines how an image should fit within its container.
+    public enum ImageFit: String {
+        /// Scale image to completely fill container, may crop edges.
+        case cover
+        
+        /// Scale image to fit entirely within container, preserving aspect ratio (default).
+        case contain
+        
+        /// Stretch image to fill container, may distort aspect ratio.
+        case fill
+        
+        /// Display image at original size or scaled down if larger than container.
+        case scaleDown = "scale-down"
+        
+        /// Display image at original size.
+        case none
+    }
+    
     /// The content and behavior of this HTML.
     public var body: some HTML { self }
 
@@ -26,27 +44,53 @@ public struct Slide: HTML {
     /// How opaque the background image should be. Use values lower than 1.0
     /// to progressively dim the background image.
     var backgroundOpacity = 1.0
+    
+    /// How the background image should fit within the slide container.
+    /// Default is `.contain` which preserves aspect ratio and shows the full image.
+    var imageFit: ImageFit = .contain
+    
+    /// The background color for the slide container. Used for letterboxing
+    /// when image doesn't fill the entire space.
+    /// Default is "transparent" to allow page background to show through.
+    var containerBackgroundColor: String = "transparent"
 
     /// Creates a new `Slide` object using a background image.
-    /// - Parameter background: An optional background image to use for
-    /// this slide. This should be specified relative to the root of your
-    /// site, e.g. /images/dog.jpg.
-    public init(background: String) {
+    /// - Parameters:
+    ///   - background: An optional background image to use for this slide.
+    ///     This should be specified relative to the root of your site, e.g. /images/dog.jpg.
+    ///   - imageFit: How the image should fit within the container. Default is `.contain`.
+    ///   - backgroundColor: Background color for letterboxing areas. Default is "transparent".
+    public init(
+        background: String,
+        imageFit: ImageFit = .contain,
+        backgroundColor: String = "transparent"
+    ) {
         self.background = background
         self.items = HTMLCollection([])
+        self.imageFit = imageFit
+        self.containerBackgroundColor = backgroundColor
     }
 
     /// Creates a new `Slide` object using a background image and a page
     /// element builder that returns an array of `HTML` objects to use
     /// inside the slide.
-    /// - Parameter background: An optional background image to use for
-    /// this slide. This should be specified relative to the root of your
-    /// site, e.g. /images/dog.jpg.
-    /// - Parameter items: Other items to place inside this slide, which will
-    /// be placed on top of the background image.
-    public init(background: String? = nil, @HTMLBuilder items: () -> some HTML) {
+    /// - Parameters:
+    ///   - background: An optional background image to use for this slide.
+    ///     This should be specified relative to the root of your site, e.g. /images/dog.jpg.
+    ///   - imageFit: How the image should fit within the container. Default is `.contain`.
+    ///   - backgroundColor: Background color for letterboxing areas. Default is "transparent".
+    ///   - items: Other items to place inside this slide, which will
+    ///     be placed on top of the background image.
+    public init(
+        background: String? = nil,
+        imageFit: ImageFit = .contain,
+        backgroundColor: String = "transparent",
+        @HTMLBuilder items: () -> some HTML
+    ) {
         self.background = background
         self.items = HTMLCollection(items)
+        self.imageFit = imageFit
+        self.containerBackgroundColor = backgroundColor
     }
 
     /// Adjusts the opacity of the background image for this slide. Use values
@@ -56,6 +100,25 @@ public struct Slide: HTML {
     public func backgroundOpacity(_ opacity: Double) -> Slide {
         var copy = self
         copy.backgroundOpacity = opacity
+        return copy
+    }
+    
+    /// Sets how the background image should fit within the slide container.
+    /// - Parameter fit: The image fit mode.
+    /// - Returns: A new `Slide` instance with the updated image fit.
+    public func imageFit(_ fit: ImageFit) -> Slide {
+        var copy = self
+        copy.imageFit = fit
+        return copy
+    }
+    
+    /// Sets the background color for the slide container, used for letterboxing
+    /// when the image doesn't fill the entire space.
+    /// - Parameter color: The CSS color value (e.g., "black", "#000", "rgba(0,0,0,0.5)").
+    /// - Returns: A new `Slide` instance with the updated background color.
+    public func backgroundColor(_ color: String) -> Slide {
+        var copy = self
+        copy.containerBackgroundColor = color
         return copy
     }
 
@@ -68,7 +131,7 @@ public struct Slide: HTML {
                     .class("d-block", "w-100")
                     .style(
                         .init(.height, value: "100%"),
-                        .init(.objectFit, value: "cover"),
+                        .init(.objectFit, value: imageFit.rawValue),
                         .init(.opacity, value: backgroundOpacity.formatted(.nonLocalizedDecimal))
                     )
             }
@@ -82,7 +145,7 @@ public struct Slide: HTML {
         .attributes(attributes)
         .class("carousel-item")
         .class(index == 0 ? "active" : nil)
-        .style(.backgroundColor, "black")
+        .style(.backgroundColor, containerBackgroundColor)
     }
 
     /// Renders this element using publishing context passed in.
