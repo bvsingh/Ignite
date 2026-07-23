@@ -50,7 +50,7 @@ extension PublishingContext {
     /// Copies one file from the Ignite resources into the final build folder.
     /// - Parameters resource: The resource to copy.
     func copy(resource: String) {
-        guard let sourceURL = Bundle.module.url(forResource: "Resources/\(resource)", withExtension: nil) else {
+        guard let sourceURL = bundle.url(forResource: "Resources/\(resource)", withExtension: nil) else {
             fatalError(.missingSiteResource(resource))
         }
 
