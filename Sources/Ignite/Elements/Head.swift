@@ -126,7 +126,7 @@ public struct Head: MarkupElement {
 
     /// An inline script that handles theme changes immediately.
     private static var themeSwitchingScript: Script? {
-        guard let sourceURL = Bundle.module.url(forResource: "Resources/js/theme-switching", withExtension: "js"),
+        guard let sourceURL = bundle.url(forResource: "Resources/js/theme-switching", withExtension: "js"),
               let contents = try? String(contentsOf: sourceURL)
         else {
             PublishingContext.shared.addError(.missingSiteResource("js/theme-switching.js"))

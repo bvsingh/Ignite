@@ -33,7 +33,7 @@ struct SyntaxHighlightGenerator {
 
         // Add our highlighters in reverse order, so dependencies are added first
         for filename in filenames.reversed() {
-            guard let url = Bundle.module.url(forResource: filename, withExtension: "js") else {
+            guard let url = bundle.url(forResource: filename, withExtension: "js") else {
                 context.addError(.missingSyntaxHighlighter(filename))
                 continue
             }

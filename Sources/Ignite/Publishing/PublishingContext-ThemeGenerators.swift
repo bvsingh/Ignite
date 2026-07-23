@@ -33,7 +33,7 @@ extension PublishingContext {
 
     /// Generates CSS for all themes including font faces, colors, and typography settings, writing to themes.min.css.
     private func globalRulesets() -> String {
-        guard let sourceURL = Bundle.module.url(forResource: "Resources/css/global-rules", withExtension: "css") else {
+        guard let sourceURL = bundle.url(forResource: "Resources/css/global-rules", withExtension: "css") else {
             fatalError(.missingSiteResource("css/global-rules.css"))
         }
 
